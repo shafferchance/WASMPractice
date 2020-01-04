@@ -2,7 +2,7 @@ Working with various books and online sources to learn the ins and out of Web As
 
 ## Current Projects within:
 * WASM Checkers (In WAT) [Idea/Practice-Source](https://pragprog.com/book/khrust/programming-webassembly-with-rust)
-    - [] Working to debug
-    - [] Add jumps
-    - [] Add piece removal
-    - [] Add Score
+    - [ ] Working to debug
+    - [ ] Add jumps
+    - [ ] Add piece removal
+    - [ ] Add Score
