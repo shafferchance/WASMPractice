@@ -7,10 +7,6 @@
 
     (import "debug" "sendmessage"
         (func $notify_programmer (param $value i32)))
-
-    (import "debug" "sendcoords"
-        (func $notify_coords (param $x i32) (param $y i32)))
-
     ;;----------------------------------------------------------------------
 
     (memory $mem 1)
@@ -143,10 +139,15 @@
 
     ;; Determine if it's a player's turn
     (func $isPlayersTurn (param $player i32) (result i32)
-        (i32.gt_s
+        (local $temp i32)
+        ;;(call $notify_programmer (get_local $player))
+        ;;(call $notify_programmer (call $getTurnOwner))
+        (set_local $temp (i32.gt_s
             (i32.and (get_local $player) (call $getTurnOwner))
-            (i32.const 0)
+            (i32.const 0))
         )
+        ;;(call $notify_programmer (get_local $temp))
+        (get_local $temp)
     )
 
     ;; Should this piece get crowned?
@@ -191,14 +192,14 @@
         (local $player i32)
         (local $target i32)
         (local $test i32)
+        (local $temp i32)
 
         (set_local $player (call $getPiece (get_local $fromX) (get_local $fromY)))
         (set_local $target (call $getPiece (get_local $toX) (get_local $toY)))
-        (call $notify_coords (get_local $fromX) (get_local $fromY))
-        (call $notify_coords (get_local $toX) (get_local $toY))
-        (call $notify_coords (get_local $player) (get_local $target))
         (if (result i32)
             (block (result i32)
+                ;;(call $notify_programmer (get_local $player))
+                ;;(call $notify_programmer (get_local $target))
                 (set_local $test (i32.and
                     (call $validJumpDistance (get_local $fromY) (get_local $toY))
                     (i32.and
@@ -265,7 +266,7 @@
         (set_local $curpiece (call $getPiece (get_local $fromX) (get_local $fromY)))
 
         (call $toggleTurnOwner)
-        (call $notify_programmer (get_global $currentTurn))
+        ;;(call $notify_programmer (get_global $currentTurn))
         (call $setPiece (get_local $toX) (get_local $toY) (get_local $curpiece))
         (call $setPiece (get_local $fromX) (get_local $fromY) (i32.const 0))
         (if (call $shouldCrown (get_local $toY) (get_local $curpiece))
@@ -277,39 +278,39 @@
 
     ;; Manually place each piece on the board to init. the game
     (func $initBoard
-        ;; Place the white pieces at the top of the board
-    (call $setPiece (i32.const 1) (i32.const 0) (i32.const 2))
-    (call $setPiece (i32.const 3) (i32.const 0) (i32.const 2))
-    (call $setPiece (i32.const 5) (i32.const 0) (i32.const 2))
-    (call $setPiece (i32.const 7) (i32.const 0) (i32.const 2))
+        ;; Place the black pieces at the top of the board
+        (call $setPiece (i32.const 1) (i32.const 0) (i32.const 1))
+        (call $setPiece (i32.const 3) (i32.const 0) (i32.const 1))
+        (call $setPiece (i32.const 5) (i32.const 0) (i32.const 1))
+        (call $setPiece (i32.const 7) (i32.const 0) (i32.const 1))
 
-    (call $setPiece (i32.const 0) (i32.const 1) (i32.const 2))
-    (call $setPiece (i32.const 2) (i32.const 1) (i32.const 2))
-    (call $setPiece (i32.const 4) (i32.const 1) (i32.const 2))
-    (call $setPiece (i32.const 6) (i32.const 1) (i32.const 2))
+        (call $setPiece (i32.const 0) (i32.const 1) (i32.const 1))
+        (call $setPiece (i32.const 2) (i32.const 1) (i32.const 1))
+        (call $setPiece (i32.const 4) (i32.const 1) (i32.const 1))
+        (call $setPiece (i32.const 6) (i32.const 1) (i32.const 1))
 
-    (call $setPiece (i32.const 1) (i32.const 2) (i32.const 2))
-    (call $setPiece (i32.const 3) (i32.const 2) (i32.const 2))
-    (call $setPiece (i32.const 5) (i32.const 2) (i32.const 2))
-    (call $setPiece (i32.const 7) (i32.const 2) (i32.const 2))
+        (call $setPiece (i32.const 1) (i32.const 2) (i32.const 1))
+        (call $setPiece (i32.const 3) (i32.const 2) (i32.const 1))
+        (call $setPiece (i32.const 5) (i32.const 2) (i32.const 1))
+        (call $setPiece (i32.const 7) (i32.const 2) (i32.const 1))
 
-    ;; Place the black pieces at the bottom of the board
-    (call $setPiece (i32.const 0) (i32.const 5) (i32.const 1))
-    (call $setPiece (i32.const 2) (i32.const 5) (i32.const 1))
-    (call $setPiece (i32.const 4) (i32.const 5) (i32.const 1))
-    (call $setPiece (i32.const 6) (i32.const 5) (i32.const 1))
+        ;; Place the white pieces at the bottom of the board
+        (call $setPiece (i32.const 0) (i32.const 5) (i32.const 2))
+        (call $setPiece (i32.const 2) (i32.const 5) (i32.const 2))
+        (call $setPiece (i32.const 4) (i32.const 5) (i32.const 2))
+        (call $setPiece (i32.const 6) (i32.const 5) (i32.const 2))
 
-    (call $setPiece (i32.const 1) (i32.const 6) (i32.const 1))
-    (call $setPiece (i32.const 3) (i32.const 6) (i32.const 1))
-    (call $setPiece (i32.const 5) (i32.const 6) (i32.const 1))
-    (call $setPiece (i32.const 7) (i32.const 6) (i32.const 1))
+        (call $setPiece (i32.const 1) (i32.const 6) (i32.const 2))
+        (call $setPiece (i32.const 3) (i32.const 6) (i32.const 2))
+        (call $setPiece (i32.const 5) (i32.const 6) (i32.const 2))
+        (call $setPiece (i32.const 7) (i32.const 6) (i32.const 2))
 
-    (call $setPiece (i32.const 0) (i32.const 7) (i32.const 1))
-    (call $setPiece (i32.const 2) (i32.const 7) (i32.const 1))
-    (call $setPiece (i32.const 4) (i32.const 7) (i32.const 1))
-    (call $setPiece (i32.const 6) (i32.const 7) (i32.const 1))
+        (call $setPiece (i32.const 0) (i32.const 7) (i32.const 2))
+        (call $setPiece (i32.const 2) (i32.const 7) (i32.const 2))
+        (call $setPiece (i32.const 4) (i32.const 7) (i32.const 2))
+        (call $setPiece (i32.const 6) (i32.const 7) (i32.const 2))
 
-    (call $setTurnOwner (i32.const 1)) ;; Black goes first
+        (call $setTurnOwner (i32.const 1)) ;; Black goes first
     )
 
     (export "getPiece" (func $getPiece))
