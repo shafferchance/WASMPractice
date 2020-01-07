@@ -8,6 +8,9 @@
     (import "debug" "sendmessage"
         (func $notify_programmer (param $value i32)))
 
+    (import "debug" "sendcoords"
+        (func $notify_coords (param $x i32) (param $y i32)))
+
     ;;----------------------------------------------------------------------
 
     (memory $mem 1)
@@ -187,19 +190,24 @@
                        (param $toX i32) (param $toY i32) (result i32)
         (local $player i32)
         (local $target i32)
+        (local $test i32)
 
         (set_local $player (call $getPiece (get_local $fromX) (get_local $fromY)))
         (set_local $target (call $getPiece (get_local $toX) (get_local $toY)))
+        (call $notify_coords (get_local $fromX) (get_local $fromY))
+        (call $notify_coords (get_local $toX) (get_local $toY))
+        (call $notify_coords (get_local $player) (get_local $target))
         (if (result i32)
             (block (result i32)
-                (i32.and
+                (set_local $test (i32.and
                     (call $validJumpDistance (get_local $fromY) (get_local $toY))
                     (i32.and
                         (call $isPlayersTurn (get_local $player))
                         ;; Target must be unoccupied
                         (i32.eq (get_local $target) (i32.const 0))
                     )
-                )
+                ))
+                (get_local $test)
             )
             (then 
                 (i32.const 1)
@@ -223,7 +231,7 @@
                 (call $distance (get_local $from) (get_local $to))
             ))
         )
-        (call $notify_programmer (get_local $d))
+        
         (i32.le_u
             (get_local $d)
             (i32.const 2)
@@ -257,6 +265,7 @@
         (set_local $curpiece (call $getPiece (get_local $fromX) (get_local $fromY)))
 
         (call $toggleTurnOwner)
+        (call $notify_programmer (get_global $currentTurn))
         (call $setPiece (get_local $toX) (get_local $toY) (get_local $curpiece))
         (call $setPiece (get_local $fromX) (get_local $fromY) (i32.const 0))
         (if (call $shouldCrown (get_local $toY) (get_local $curpiece))
